@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bruno Mars Las Vegas Tickets | Eventix</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/seats.css">
+</head>
+<body>
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav">
+        <a href="index.html" class="logo">eventix</a>
+        <div class="nav-links">
+            <a href="index.html" class="active">Concerts</a>
+            <a href="index.html?category=sports">Sports</a>
+            <a href="index.html?category=theater">Arts, Theater & Comedy</a>
+            <a href="index.html?category=family">Family</a>
+            <a href="index.html?category=cities">Cities</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> /
+        <a href="index.html" id="breadcrumbCategoryLink">Concert Tickets</a> /
+        <a href="index.html" id="breadcrumbGenreLink">Rock</a> /
+        <span id="eventNameBreadcrumb">Bruno Mars Las Vegas</span>
+    </nav>
+
+    <!-- Event Header -->
+    <section class="event-header">
+        <div class="event-main">
+            <div class="event-thumb-container">
+                <img class="event-thumb" alt="Event thumbnail">
+            </div>
+            <div class="event-details">
+                <h1 class="event-name" id="eventName">Bruno Mars Las Vegas</h1>
+                <p class="event-datetime" id="eventDateTime">Tue Dec 30, 2025 9:00 PM</p>
+                <a href="#" class="venue-link" id="venueLink">Dolby Live, Las Vegas, NV</a>
+                <button class="more-info-btn">
+                    More Info
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="event-aside">
+            <div class="selection-hint selection-hint--map">
+                Tip: Click once to focus a seat (list sync). Click again to select.
+            </div>
+            <!-- Legend -->
+            <div class="legend-container">
+                <div class="legend-content" id="legendContent">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--seat-available);"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--seat-unavailable);"></div>
+                        <span>Unavailable</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--seat-premium);"></div>
+                        <span>Premium</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Main Layout: Seat Map + Ticket Panel -->
+    <div class="seats-layout">
+        <!-- Left: Interactive Seat Map -->
+        <section class="seat-map-section">
+            <div class="seat-map-container">
+                <canvas id="seatMapCanvas" width="1200" height="900"></canvas>
+
+                <!-- Zoom Controls -->
+                <div class="zoom-controls">
+                    <button id="homeBtn" class="zoom-btn" title="Reset View" aria-label="Reset view">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 3L2 8h3v7h4v-5h2v5h4V8h3L10 3z"/>
+                        </svg>
+                    </button>
+                    <button id="zoomInBtn" class="zoom-btn" title="Zoom In" aria-label="Zoom in">+</button>
+                    <button id="zoomOutBtn" class="zoom-btn" title="Zoom Out" aria-label="Zoom out">-</button>
+                </div>
+
+                <!-- Mini Map -->
+                <div class="mini-map-container">
+                    <canvas id="miniMapCanvas" width="200" height="150"></canvas>
+                </div>
+
+                <!-- Seat Tooltip (rendered dynamically) -->
+                <div id="seatTooltip" class="seat-tooltip hidden">
+                    <!-- Content populated by JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right: Ticket Listings Panel -->
+        <aside class="ticket-panel">
+            <div class="ticket-controls">
+                <!-- Filters Button -->
+                <button class="filters-btn" id="filtersBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 2h6v2H0V2zm8 0h8v2H8V2zM0 7h8v2H0V7zm10 0h6v2h-6V7zM0 12h4v2H0v-2zm6 0h10v2H6v-2z"/>
+                    </svg>
+                    Filters
+                </button>
+            </div>
+
+            <!-- Price Range Slider -->
+            <div class="price-range-container">
+                <div class="price-range-header">
+                    <span class="price-min" id="priceMinDisplay">$738</span>
+                    <span class="price-separator">-</span>
+                    <span class="price-max" id="priceMaxDisplay">$2,863+</span>
+                </div>
+                <div class="price-slider">
+                    <input type="range" id="priceMinSlider" class="price-range-input" min="738" max="2863" value="738" step="1">
+                    <input type="range" id="priceMaxSlider" class="price-range-input" min="738" max="2863" value="2863" step="1">
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="ticket-tabs">
+                <button class="ticket-tab active" data-tab="lowest">LOWEST PRICE</button>
+                <button class="ticket-tab" data-tab="best">BEST SEATS</button>
+            </div>
+
+            <!-- Fee Notice -->
+            <div class="fee-notice">
+                We're All In: Prices include fees (before taxes).
+            </div>
+
+            <!-- PayPal Notice -->
+            <div class="paypal-notice">
+                <span class="paypal-logo">PayPal</span> Buy Now, Pay Later
+                <a href="https://www.paypal.com/us/digital-wallet/buy-now-pay-later" class="more-info-link" target="_blank" rel="noopener">More Info</a>
+            </div>
+
+            <div id="ticketFocusNotice" class="ticket-focus-notice hidden"></div>
+
+            <!-- Selected Seats Cart -->
+            <div id="selectedSeatsCart" class="selected-seats-cart hidden">
+                <h3 class="cart-title">Your Selected Seats</h3>
+                <div id="selectedSeatsList" class="selected-seats-list">
+                    <!-- Selected seats will be populated here -->
+                </div>
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="cartTotalAmount">$0.00</span>
+                    </div>
+                    <button id="checkoutBtn" class="checkout-btn">Checkout</button>
+                    <button id="clearCartBtn" class="clear-cart-btn">Clear Selection</button>
+                </div>
+            </div>
+
+            <!-- Ticket Cards Container -->
+            <div id="ticketCardsContainer" class="ticket-cards">
+                <!-- Ticket cards will be populated by JavaScript -->
+                <div class="loading"></div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/common.js?v=14"></script>
+    <script src="js/seatmap-renderer.js?v=14"></script>
+    <script src="js/zoom-controller.js?v=14"></script>
+    <script src="js/tooltip-manager.js?v=14"></script>
+    <script src="js/seats.js?v=14"></script>
+</body>
+</html>
+

@@ -1,0 +1,58 @@
+{
+  "concerts": [
+    {
+      "id": "bruno-mars-dec30",
+      "artistId": "bruno-mars",
+      "artistName": "Bruno Mars",
+      "eventName": "Bruno Mars Las Vegas",
+      "category": "pop",
+      "venueId": "dolby-live",
+      "venueName": "Dolby Live",
+      "city": "Las Vegas",
+      "state": "NV",
+      "date": "2025-12-30",
+      "relativeDay": 15,
+      "time": "21:00",
+      "imageUrl": "https://images.unsplash.com/photo-1507878866276-a947ef722fee?auto=format&fit=crop&w=1200&q=60",
+      "featured": true,
+      "rating": 4.7,
+      "nearYou": true
+    },
+    {
+      "id": "bruno-mars-dec31",
+      "artistId": "bruno-mars",
+      "artistName": "Bruno Mars",
+      "eventName": "Bruno Mars Las Vegas",
+      "category": "pop",
+      "venueId": "dolby-live",
+      "venueName": "Dolby Live",
+      "city": "Las Vegas",
+      "state": "NV",
+      "date": "2025-12-31",
+      "relativeDay": 16,
+      "time": "20:00",
+      "imageUrl": "https://images.unsplash.com/photo-1507878866276-a947ef722fee?auto=format&fit=crop&w=1200&q=60",
+      "featured": false,
+      "rating": 4.7,
+      "nearYou": true
+    },
+    {
+      "id": "wizard-of-oz",
+      "artistId": "wizard-of-oz",
+      "artistName": "The Wizard of Oz",
+      "eventName": "The Wizard of Oz at Sphere",
+      "category": "theater",
+      "venueId": "sphere",
+      "venueName": "Sphere",
+      "city": "Las Vegas",
+      "state": "NV",
+      "date": "2025-11-15",
+      "relativeDay": 0,
+      "time": "19:30",
+      "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=60",
+      "featured": true,
+      "rating": 4.9,
+      "nearYou": false
+    }
+  ]
+}

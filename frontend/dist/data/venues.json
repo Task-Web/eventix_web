@@ -1,0 +1,61 @@
+{
+  "venues": [
+    {
+      "id": "dolby-live",
+      "name": "Dolby Live",
+      "city": "Las Vegas",
+      "state": "NV",
+      "address": "3770 S Las Vegas Blvd, Las Vegas, NV 89109",
+      "capacity": 5200,
+      "seatMapFile": "dolby-live-seats.json",
+      "sections": [
+        "FLOOR 101",
+        "FLOOR 102",
+        "FLOOR 103",
+        "201",
+        "202",
+        "203",
+        "204",
+        "205",
+        "301",
+        "302",
+        "303",
+        "304",
+        "305",
+        "BALCONY 401",
+        "BALCONY 402",
+        "BALCONY 403",
+        "BALCONY 404",
+        "BALCONY 405"
+      ],
+      "viewType": "schematic"
+    },
+    {
+      "id": "sphere",
+      "name": "Sphere",
+      "city": "Las Vegas",
+      "state": "NV",
+      "address": "255 Sands Ave, Las Vegas, NV 89169",
+      "capacity": 18600,
+      "seatMapFile": "sphere-seats.json",
+      "sections": [
+        "FLOOR 101",
+        "FLOOR 102",
+        "FLOOR 103",
+        "LEVEL 200",
+        "LEVEL 201",
+        "LEVEL 202",
+        "LEVEL 203",
+        "LEVEL 300",
+        "LEVEL 301",
+        "LEVEL 302",
+        "LEVEL 303",
+        "LEVEL 400",
+        "LEVEL 401",
+        "LEVEL 402",
+        "LEVEL 403"
+      ],
+      "viewType": "schematic"
+    }
+  ]
+}
