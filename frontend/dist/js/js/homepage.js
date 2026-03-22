@@ -60,19 +60,39 @@ function initSearchHandlers() {
 
 // Handle search
 function handleSearch() {
+    const filters = getSearchFilters();
+
+    if (!hasSearchFilters(filters)) {
+        loadFeaturedEvents();
+        return;
+    }
+
+    const filteredByCategory = filterConcertsByCategory(homepageState.concerts, homepageState.activeCategory);
+    const results = dedupeConcerts(filterConcertsBySearch(filteredByCategory, filters));
+    const container = document.getElementById('eventCardsContainer');
+
+    showLoading(container);
+    renderEventCards(results, {
+        title: `Search Results (${results.length})`,
+        emptyMessage: 'No events match your search. Try adjusting your filters.'
+    });
+}
+
+function getSearchFilters() {
     const location = document.getElementById('locationInput').value.trim();
-    const artist = document.getElementById('artistInput').value.trim();
+    const query = document.getElementById('artistInput').value.trim();
     const { startDate, endDate } = homepageState.calendar;
 
-    // Build search params
-    const params = {};
-    if (location) params.location = location;
-    if (artist) params.artist = artist;
-    if (startDate) params.startDate = formatDateForInput(startDate);
-    if (endDate) params.endDate = formatDateForInput(endDate);
+    return {
+        location,
+        query,
+        startDate,
+        endDate
+    };
+}
 
-    // Navigate to artist page with params
-    navigateWithParams('artist.html', params);
+function hasSearchFilters(filters) {
+    return Boolean(filters.location || filters.query || filters.startDate || filters.endDate);
 }
 
 // Apply URL parameters to homepage state and UI
@@ -349,7 +369,7 @@ function handleDateClick(date) {
 }
 
 // Load and render featured events
-async function loadFeaturedEvents() {
+function loadFeaturedEvents() {
     const container = document.getElementById('eventCardsContainer');
 
     // Show loading
@@ -359,17 +379,31 @@ async function loadFeaturedEvents() {
     const filtered = filterConcertsByCategory(homepageState.concerts, homepageState.activeCategory);
     const featured = filtered.filter(concert => concert.featured);
 
+    renderEventCards(featured, {
+        title: 'Promoted',
+        emptyMessage: 'No featured events match your selection.'
+    });
+}
+
+function renderEventCards(concerts, { title, emptyMessage } = {}) {
+    const container = document.getElementById('eventCardsContainer');
+    const sectionTitle = document.querySelector('.section-title');
+
+    if (sectionTitle && title) {
+        sectionTitle.textContent = title;
+    }
+
     // Hide loading
     hideLoading(container);
 
     // Render event cards
-    if (featured.length === 0) {
-        container.innerHTML = '<p>No featured events match your selection.</p>';
+    if (concerts.length === 0) {
+        container.innerHTML = `<p class="text-center">${emptyMessage || 'No events found.'}</p>`;
         return;
     }
 
     container.innerHTML = '';
-    featured.forEach(concert => {
+    concerts.forEach(concert => {
         const card = createEventCard(concert);
         container.appendChild(card);
     });
@@ -392,9 +426,11 @@ function createEventCard(concert) {
     const content = createElement('div', 'event-card-content');
 
     // Promoted badge
-    const badge = createElement('span', 'event-card-promoted');
-    badge.textContent = 'PROMOTED';
-    content.appendChild(badge);
+    if (concert.featured) {
+        const badge = createElement('span', 'event-card-promoted');
+        badge.textContent = 'PROMOTED';
+        content.appendChild(badge);
+    }
 
     // Event title
     const title = createElement('h3', 'event-card-title');
@@ -413,13 +449,97 @@ function createEventCard(concert) {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        navigateToSeats(concert.id);
+        window.location.href = `artist.html?concertId=${concert.id}`;
     });
     content.appendChild(btn);
 
     card.appendChild(content);
 
     return card;
+}
+
+function filterConcertsBySearch(concerts, filters) {
+    const locationQuery = filters.location ? filters.location.toLowerCase() : '';
+    const searchQuery = filters.query ? filters.query.toLowerCase() : '';
+
+    return concerts.filter(concert => {
+        if (locationQuery) {
+            const location = `${concert.city}, ${concert.state}`.toLowerCase();
+            if (!location.includes(locationQuery)) {
+                return false;
+            }
+        }
+
+        if (searchQuery) {
+            const searchable = [
+                concert.artistName,
+                concert.eventName,
+                concert.venueName
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            if (!searchable.includes(searchQuery)) {
+                return false;
+            }
+        }
+
+        if (filters.startDate || filters.endDate) {
+            const concertDate = new Date(concert.date);
+            if (filters.startDate && concertDate < filters.startDate) {
+                return false;
+            }
+            if (filters.endDate && concertDate > filters.endDate) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+function dedupeConcerts(concerts) {
+    const seen = new Map();
+
+    concerts.forEach(concert => {
+        const key = getConcertIdentityKey(concert);
+        const existing = seen.get(key);
+        if (!existing) {
+            seen.set(key, concert);
+            return;
+        }
+
+        if (getConcertDateValue(concert) < getConcertDateValue(existing)) {
+            seen.set(key, concert);
+        }
+    });
+
+    return Array.from(seen.values());
+}
+
+function getConcertIdentityKey(concert) {
+    const parts = [
+        concert.eventName,
+        concert.artistId || concert.artistName,
+        concert.venueId || concert.venueName,
+        concert.city,
+        concert.state
+    ].filter(Boolean);
+
+    if (parts.length === 0) {
+        return concert.id || '';
+    }
+
+    return parts.join('|').toLowerCase();
+}
+
+function getConcertDateValue(concert) {
+    if (!concert || !concert.date) {
+        return Number.POSITIVE_INFINITY;
+    }
+
+    const time = concert.time || '00:00';
+    const parsed = new Date(`${concert.date}T${time}`);
+    const value = parsed.getTime();
+    return Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
 }
 
 // Filter concerts by category

@@ -449,7 +449,7 @@ function createEventCard(concert) {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        navigateToSeats(concert.id);
+        window.location.href = `artist.html?concertId=${concert.id}`;
     });
     content.appendChild(btn);
 

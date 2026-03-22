@@ -214,8 +214,22 @@ function generateSeatGrid(section) {
         for (let col = 0; col < seatsPerRow; col++) {
             const seatNumber = col + 1;
 
+            // Theater-style numbering: seat 1 at center, odd numbers fan out left,
+            // even numbers fan out right. Layout: ...11, 9, 7, 5, 3, 1 | 2, 4, 6, 8, 10, 12...
+            const numOddSeats = Math.ceil(seatsPerRow / 2);
+            let visualCol;
+            if (seatNumber % 2 === 1) {
+                // Odd seats: left side, from center outward
+                // Seat 1 → rightmost of left half, Seat 3 → one step left, etc.
+                visualCol = numOddSeats - 1 - (seatNumber - 1) / 2;
+            } else {
+                // Even seats: right side, from center outward
+                // Seat 2 → leftmost of right half, Seat 4 → one step right, etc.
+                visualCol = numOddSeats + (seatNumber / 2 - 1);
+            }
+
             // Calculate seat position
-            const x = bounds.x + (col + 1) * seatSpacingX;
+            const x = bounds.x + (visualCol + 1) * seatSpacingX;
             const y = bounds.y + (row + 1) * seatSpacingY;
 
             // Price varies by row (rows closer to stage are more expensive)
@@ -225,10 +239,8 @@ function generateSeatGrid(section) {
                 priceRange.min + (priceRange.max - priceRange.min) * rowMultiplier
             );
 
-            // Random availability (10% available, 90% unavailable) using seeded random
-            // Create unique seed based on BASE_SEED, section ID and seat position for consistency
-            const seatSeed = BASE_SEED + section.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + row * 1000 + col;
-            const status = seededRandom(seatSeed) > 0.95 ? 'available' : 'unavailable';
+            // Default to unavailable; availability is applied from backend state
+            const status = 'unavailable';
 
             seats.push({
                 id: `${section.id}_${rowLabel}${seatNumber}`,
@@ -440,7 +452,21 @@ function getAvailableSeats() {
  * @returns {Array} - Sorted array
  */
 function sortSeatsByPrice(seats) {
-    return [...seats].sort((a, b) => a.price - b.price);
+    return [...seats].sort((a, b) => {
+        // Primary: price ascending
+        if (a.price !== b.price) return a.price - b.price;
+
+        // Secondary: section number ascending
+        const numA = parseInt((a.sectionName.match(/\d+/) || ['0'])[0], 10);
+        const numB = parseInt((b.sectionName.match(/\d+/) || ['0'])[0], 10);
+        if (numA !== numB) return numA - numB;
+
+        // Tertiary: row ascending (A < B < C ...)
+        if (a.row !== b.row) return a.row.localeCompare(b.row);
+
+        // Quaternary: seat number ascending
+        return a.seatNumber - b.seatNumber;
+    });
 }
 
 /**

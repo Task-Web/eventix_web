@@ -135,43 +135,38 @@ async function initSeatMap() {
     // Initialize tooltip manager
     initTooltipManager();
 
-    await applyUnavailableSeatsFromState();
+    await applyAvailableSeatsFromState();
 
     // Get available seats for ticket panel
     seatsState.availableSeats = getAvailableSeats();
 }
 
-async function applyUnavailableSeatsFromState() {
+async function applyAvailableSeatsFromState() {
     if (!window.eventixApi || !seatsState.concert || typeof mapState === 'undefined') {
         return;
     }
 
     try {
         const current = await window.eventixApi.getState();
-        const unavailableSeats = current?.state?.data?.inventory?.unavailableSeatsByConcert?.[seatsState.concert.id];
+        const availableSeats = current?.state?.data?.inventory?.availableSeatsByConcert?.[seatsState.concert.id];
 
-        if (!Array.isArray(unavailableSeats) || unavailableSeats.length === 0) {
+        if (!Array.isArray(availableSeats) || availableSeats.length === 0) {
             return;
         }
 
-        const unavailableSeatIds = new Set(unavailableSeats);
+        const availableSeatIds = new Set(availableSeats);
         mapState.sections.forEach(section => {
             const seats = mapState.seats.get(section.id) || [];
             seats.forEach(seat => {
-                if (unavailableSeatIds.has(seat.id)) {
-                    seat.status = 'unavailable';
+                if (availableSeatIds.has(seat.id)) {
+                    seat.status = 'available';
                 }
             });
         });
 
-        seatsState.selectedSeats = seatsState.selectedSeats.filter(seat => !unavailableSeatIds.has(seat.id));
-        if (focusedSeatId && unavailableSeatIds.has(focusedSeatId)) {
-            focusedSeatId = null;
-        }
-
         renderSeatMap();
     } catch (error) {
-        console.warn('Failed to apply unavailable seats:', error);
+        console.warn('Failed to apply available seats from state:', error);
     }
 }
 
@@ -377,7 +372,7 @@ function createTicketCard(seat) {
     const info = createElement('div', 'ticket-info');
 
     const location = createElement('div', 'ticket-location');
-    location.textContent = `Sec ${seat.sectionName} • Row ${seat.row}`;
+    location.textContent = `Sec ${seat.sectionName} • Row ${seat.row} • Seat ${seat.seatNumber}`;
     info.appendChild(location);
 
     const type = createElement('div', 'ticket-type');

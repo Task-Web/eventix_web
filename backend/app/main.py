@@ -57,6 +57,7 @@ def _build_initial_state(settings: Settings) -> Dict[str, Any]:
         "orders": [],
         "preferences": {"currency": "USD"},
         "uploads": [],
+        "inventory": {"availableSeatsByConcert": {}},
     }
 
 

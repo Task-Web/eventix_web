@@ -24,6 +24,12 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    proxy: {
+      "/api": "http://localhost:8766",
+      "/mcp": "http://localhost:8766",
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",
