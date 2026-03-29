@@ -20,7 +20,7 @@ services:
     networks:
       - web
     labels:
-      caddy: "eventix.${HOST_SUFFIX:-localhost}"
+      caddy: "${CADDY_SCHEME-http://}eventix.${HOST_SUFFIX:-localhost}"
       caddy.0_reverse_proxy: "/api* eventix_web_backend:8000"
       caddy.1_reverse_proxy: "/mcp* eventix_web_backend:8000"
       caddy.2_reverse_proxy: "eventix_web_frontend:80"
