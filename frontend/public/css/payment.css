@@ -174,28 +174,6 @@
     margin-top: 4px;
 }
 
-/* Credits Section */
-.credits-section {
-    margin-bottom: var(--spacing-lg);
-}
-
-.credits-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: var(--tm-blue);
-    background: none;
-    border: none;
-    font-size: 14px;
-    font-weight: var(--font-weight-semibold);
-    cursor: pointer;
-    padding: var(--spacing-md) 0;
-}
-
-.credits-btn:hover {
-    text-decoration: underline;
-}
-
 /* Insurance Section */
 .insurance-section {
     background-color: var(--tm-white);
@@ -406,6 +384,15 @@
     border: none;
     cursor: pointer;
     padding: 4px;
+    transition: transform 0.2s ease;
+}
+
+.toggle-details.is-collapsed {
+    transform: rotate(-90deg);
+}
+
+.summary-details.is-collapsed {
+    display: none;
 }
 
 /* Summary Details */

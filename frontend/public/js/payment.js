@@ -12,9 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initForm();
     initPlaceOrderButton();
     initNavigationLinks();
+    initToggleDetails();
     loadOrderDetails();
     initCheckoutStateSync();
 });
+
+/**
+ * Initialize toggle-details button to collapse/expand the order summary details
+ */
+function initToggleDetails() {
+    const toggleBtn = document.querySelector('.toggle-details');
+    const details = document.querySelector('.summary-details');
+    if (!toggleBtn || !details) return;
+
+    toggleBtn.addEventListener('click', () => {
+        const isHidden = details.classList.toggle('is-collapsed');
+        toggleBtn.classList.toggle('is-collapsed', isHidden);
+        toggleBtn.setAttribute('aria-expanded', String(!isHidden));
+    });
+
+    toggleBtn.setAttribute('aria-label', 'Toggle order details');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+}
 
 /**
  * Initialize timer from sessionStorage (continues from seats page)
