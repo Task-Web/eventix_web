@@ -316,26 +316,21 @@ async function syncCheckoutState(note = 'Updated checkout state', overrides = {}
     const updatedAtUTC = new Date().toISOString();
 
     try {
-        await window.eventixApi.patchState(
-            {
-                cart: {
-                    payment: {
-                        cardholderName: paymentSnapshot.cardholderName,
-                        cardLast4: paymentSnapshot.cardLast4,
-                        cardType: paymentSnapshot.cardType,
-                        insurance: paymentSnapshot.insurance,
-                        formData: paymentSnapshot.formData,
-                        updatedAtUTC: updatedAtUTC
-                    },
-                    checkout: {
-                        termsAgreed: termsAgreed,
-                        orderSummary: orderSummary,
-                        updatedAtUTC: updatedAtUTC
-                    }
-                }
+        await window.eventixApi.saveCheckout({
+            payment: {
+                cardholderName: paymentSnapshot.cardholderName,
+                cardLast4: paymentSnapshot.cardLast4,
+                cardType: paymentSnapshot.cardType,
+                insurance: paymentSnapshot.insurance,
+                formData: paymentSnapshot.formData,
+                updatedAtUTC: updatedAtUTC
             },
-            note
-        );
+            checkout: {
+                termsAgreed: termsAgreed,
+                orderSummary: orderSummary,
+                updatedAtUTC: updatedAtUTC
+            }
+        });
     } catch (error) {
         console.warn('Failed to save checkout state:', error);
     }
@@ -358,23 +353,7 @@ async function markSeatsUnavailableInState(orderSummary) {
     }
 
     try {
-        const current = await window.eventixApi.getState();
-        const existingSeats = current?.state?.data?.inventory?.unavailableSeatsByConcert?.[orderSummary.concertId];
-        const mergedSeats = Array.isArray(existingSeats)
-            ? Array.from(new Set([...existingSeats, ...seatIds]))
-            : Array.from(new Set(seatIds));
-
-        await window.eventixApi.patchState(
-            {
-                inventory: {
-                    unavailableSeatsByConcert: {
-                        [orderSummary.concertId]: mergedSeats
-                    },
-                    updatedAtUTC: new Date().toISOString()
-                }
-            },
-            'Marked seats unavailable'
-        );
+        await window.eventixApi.holdSeats(orderSummary.concertId, seatIds);
     } catch (error) {
         console.warn('Failed to mark seats unavailable:', error);
     }

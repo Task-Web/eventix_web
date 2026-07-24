@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import copy
 from typing import Any, Callable, Dict, Optional
 
@@ -53,6 +53,23 @@ class StateStore:
             state = self._states.get(user_id, UserState())
             updated_data = _deep_merge(copy.deepcopy(state.data), patch)
             state.data = updated_data
+            if note is not None:
+                state.note = note
+            state.touch()
+            self._states[user_id] = state
+            return state
+
+    async def mutate_data(
+        self,
+        user_id: str,
+        mutator: Callable[[Dict[str, Any]], Dict[str, Any]],
+        note: Optional[str] = None,
+    ) -> UserState:
+        async with self._lock:
+            state = self._states.get(user_id)
+            if state is None:
+                state = self._new_state()
+            state.data = mutator(copy.deepcopy(state.data))
             if note is not None:
                 state.note = note
             state.touch()

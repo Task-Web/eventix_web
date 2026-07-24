@@ -147,8 +147,8 @@ async function applyAvailableSeatsFromState() {
     }
 
     try {
-        const current = await window.eventixApi.getState();
-        const availableSeats = current?.state?.data?.inventory?.availableSeatsByConcert?.[seatsState.concert.id];
+        const current = await window.eventixApi.getAvailability(seatsState.concert.id);
+        const availableSeats = current?.available_seat_ids;
 
         if (!Array.isArray(availableSeats) || availableSeats.length === 0) {
             return;
@@ -687,26 +687,24 @@ async function syncCartState(snapshot) {
     }
 
     const payload = {
-        cart: {
-            concertId: snapshot.concert.id,
-            eventName: snapshot.concert.eventName,
-            venueName: `${snapshot.concert.venueName}, ${snapshot.concert.city}, ${snapshot.concert.state}`,
-            eventDateTime: formatDateTime(snapshot.concert.date, snapshot.concert.time),
-            quantity: snapshot.selectedSeats.length,
-            selectedSeats: snapshot.selectedSeats.map(seat => ({
-                id: seat.id,
-                section: seat.sectionName,
-                row: seat.row,
-                seatNumber: seat.seatNumber,
-                price: seat.price
-            })),
-            totalPrice: snapshot.totalPrice,
-            updatedAtUTC: new Date().toISOString()
-        }
+        concertId: snapshot.concert.id,
+        eventName: snapshot.concert.eventName,
+        venueName: `${snapshot.concert.venueName}, ${snapshot.concert.city}, ${snapshot.concert.state}`,
+        eventDateTime: formatDateTime(snapshot.concert.date, snapshot.concert.time),
+        quantity: snapshot.selectedSeats.length,
+        selectedSeats: snapshot.selectedSeats.map(seat => ({
+            id: seat.id,
+            section: seat.sectionName,
+            row: seat.row,
+            seatNumber: seat.seatNumber,
+            price: seat.price
+        })),
+        totalPrice: snapshot.totalPrice,
+        updatedAtUTC: new Date().toISOString()
     };
 
     try {
-        await window.eventixApi.patchState(payload, 'Saved cart for checkout');
+        await window.eventixApi.saveCart(payload);
     } catch (error) {
         console.warn('Failed to save cart state:', error);
     }

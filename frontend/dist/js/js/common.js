@@ -66,16 +66,26 @@ async function apiRequest(path, options = {}) {
 
 const eventixApi = {
     baseUrl: () => getApiBase(),
-    getState: () => apiRequest('/state'),
-    replaceState: (data, note, meta) => apiRequest('/state', {
+    getCatalog: () => apiRequest('/eventix/catalog'),
+    getAvailability: (concertId) =>
+        apiRequest(`/eventix/concerts/${encodeURIComponent(concertId)}/availability`),
+    saveCart: (cart) => apiRequest('/eventix/cart', {
         method: 'PUT',
-        body: JSON.stringify({ data, note, meta })
+        body: JSON.stringify(cart)
     }),
-    patchState: (data, note) => apiRequest('/state', {
-        method: 'PATCH',
-        body: JSON.stringify({ data, note })
+    saveCheckout: (checkout) => apiRequest('/eventix/cart/checkout', {
+        method: 'PUT',
+        body: JSON.stringify(checkout)
     }),
-    resetState: () => apiRequest('/state', { method: 'DELETE' }),
+    holdSeats: (concertId, seatIds) =>
+        apiRequest(`/eventix/concerts/${encodeURIComponent(concertId)}/holds`, {
+            method: 'POST',
+            body: JSON.stringify({ seat_ids: seatIds })
+        }),
+    createOrder: (order) => apiRequest('/eventix/orders', {
+        method: 'POST',
+        body: JSON.stringify(order)
+    }),
     getInfo: () => apiRequest('/info'),
     listFiles: () => apiRequest('/files'),
     uploadFiles: (files = []) => {
@@ -114,8 +124,8 @@ async function loadCatalogState() {
         return {};
     }
     try {
-        const response = await window.eventixApi.getState();
-        return response?.state?.data?.catalog || {};
+        const response = await window.eventixApi.getCatalog();
+        return response?.catalog || {};
     } catch (error) {
         console.warn('Failed to load catalog from state:', error);
         return {};

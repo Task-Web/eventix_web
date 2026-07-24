@@ -1,7 +1,8 @@
 services:
   eventix_web_backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     environment:
       - API_PREFIX=/api
       - ENV=production
@@ -25,5 +26,4 @@ services:
       caddy: "${CADDY_SCHEME-http://}eventix.${HOST_SUFFIX:-localhost}"
       caddy.0_reverse_proxy: "/api* eventix_web_backend:8000"
       caddy.1_reverse_proxy: "/mcp* eventix_web_backend:8000"
-      caddy.2_reverse_proxy: "/state-doc* eventix_web_backend:8000"
-      caddy.3_reverse_proxy: "eventix_web_frontend:80"
+      caddy.2_reverse_proxy: "eventix_web_frontend:80"

@@ -273,36 +273,7 @@ async function recordOrderInState() {
     };
 
     try {
-        const current = await window.eventixApi.getState();
-        const existingOrders = Array.isArray(current?.state?.data?.orders)
-            ? current.state.data.orders
-            : [];
-        const nextOrders = [...existingOrders, orderRecord];
-
-        const patchPayload = {
-            orders: nextOrders,
-            cart: { items: [], selectedSeats: [], payment: null }
-        };
-
-        const seatIds = Array.isArray(orderData.seatDetails)
-            ? orderData.seatDetails.map(seat => seat.id).filter(Boolean)
-            : [];
-
-        if (orderData.concertId && seatIds.length > 0) {
-            const existingUnavailable = current?.state?.data?.inventory?.unavailableSeatsByConcert?.[orderData.concertId];
-            const mergedUnavailable = Array.isArray(existingUnavailable)
-                ? Array.from(new Set([...existingUnavailable, ...seatIds]))
-                : Array.from(new Set(seatIds));
-
-            patchPayload.inventory = {
-                unavailableSeatsByConcert: {
-                    [orderData.concertId]: mergedUnavailable
-                },
-                updatedAtUTC: new Date().toISOString()
-            };
-        }
-
-        await window.eventixApi.patchState(patchPayload, 'Recorded order confirmation');
+        await window.eventixApi.createOrder(orderRecord);
     } catch (error) {
         console.warn('Failed to record order:', error);
     }
