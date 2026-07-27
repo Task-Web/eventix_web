@@ -86,11 +86,34 @@ def checkout_payload(terms=True):
 @pytest.mark.asyncio
 async def test_eventix_checkout_flow_preserves_control_plane_shape(async_client):
     await async_client.delete("/api/state", params={"cookie": COOKIE})
+    await async_client.patch(
+        "/api/state",
+        params={"cookie": COOKIE},
+        json={
+            "data": {
+                "evaluator_marker": {"keep": True},
+                "unrelated_top_level": {"hidden": True},
+                "developer_tools_open": False,
+            }
+        },
+    )
+    catalog = await async_client.get("/api/eventix/catalog", params={"cookie": COOKIE})
+    assert catalog.status_code == 200
+    assert set(catalog.json()) == {"user_id", "catalog"}
+    assert "evaluator_marker" not in catalog.json()["catalog"]
+    assert "unrelated_top_level" not in catalog.json()["catalog"]
+
     availability = await async_client.get(
         f"/api/eventix/concerts/{CONCERT_ID}/availability",
         params={"cookie": COOKIE},
     )
     assert availability.status_code == 200
+    assert set(availability.json()) == {
+        "user_id",
+        "concert_id",
+        "available_seat_ids",
+        "unavailable_seat_ids",
+    }
     assert SEAT["id"] in availability.json()["available_seat_ids"]
 
     cart = await async_client.put(
@@ -143,12 +166,29 @@ async def test_eventix_checkout_flow_preserves_control_plane_shape(async_client)
     assert data["cart"]["selectedSeats"] == []
     assert SEAT["id"] in data["inventory"]["unavailableSeatsByConcert"][CONCERT_ID]
     assert "catalog" in data
+    assert data["evaluator_marker"] == {"keep": True}
+    assert data["unrelated_top_level"] == {"hidden": True}
+    assert data["developer_tools_open"] is False
 
 
 @pytest.mark.asyncio
 async def test_eventix_rejects_nested_internal_fields_and_forged_seats(async_client):
     cookie = "eventix-strict"
     await async_client.delete("/api/state", params={"cookie": cookie})
+
+    for field in (
+        "arbitrary_state",
+        "developer_tools_open",
+        "evaluator_marker",
+        "data",
+        "state",
+    ):
+        response = await async_client.put(
+            "/api/eventix/cart",
+            params={"cookie": cookie},
+            json={**cart_payload(), field: True},
+        )
+        assert response.status_code == 422
 
     forged = cart_payload()
     forged["selectedSeats"] = [{**SEAT, "price": 1}]
